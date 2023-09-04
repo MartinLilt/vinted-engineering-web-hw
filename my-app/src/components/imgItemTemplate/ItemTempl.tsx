@@ -1,6 +1,8 @@
 import { FC, useRef, useState, useCallback } from "react";
 import s from "./itemTempl.module.css";
-import { IArrayQuery, IItemArray } from "./item.interface";
+import { IArrayQuery } from "./item.interface";
+import useSearch from "../../hooks/useSearch";
+import { IArray } from "../../containers/main/main.interface";
 
 const initialState = {
   open: false,
@@ -9,18 +11,25 @@ const initialState = {
   likes: 0,
 };
 
-const ItemTempl: FC<IItemArray> = ({ options, handleGetFavorites, setCurrentPage }) => {
+const ItemTempl: FC<IArray> = ({ searchQuery, setFavorites }) => {
   const [modal, setModal] = useState(initialState);
   const observer = useRef<IntersectionObserver | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const { options, hasMore, loading, error } = useSearch(
+    searchQuery,
+    currentPage
+  );
+
   const lastElementRef = useCallback((item: HTMLLIElement | null) => {
-    if(observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if(entries[0].isIntersecting) {
+    if (loading) return
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore) {
         setCurrentPage((state) => state + 1);
       }
     });
-    if(item) observer.current.observe(item);
-  }, []);
+    if (item) observer.current.observe(item);
+  }, [loading, hasMore]);
 
   const openModal = (currentImageId: number) => {
     const selectedImage = options.find(({ id }) => id === currentImageId);
@@ -31,6 +40,13 @@ const ItemTempl: FC<IItemArray> = ({ options, handleGetFavorites, setCurrentPage
         tags: selectedImage.tags || "",
         likes: selectedImage.likes || 0,
       });
+    }
+  };
+
+    const handleGetFavorites = (tags: string) => {
+    const currentFavoriteObject = options.find((item) => item.tags === tags);
+    if (currentFavoriteObject) {
+      setFavorites((prevState) => [...prevState, currentFavoriteObject]);
     }
   };
 
@@ -76,7 +92,7 @@ const ItemTempl: FC<IItemArray> = ({ options, handleGetFavorites, setCurrentPage
       )}
       <ul className={s.list}>
         {options.map(({ id, previewURL }: IArrayQuery, index) => {
-          if(options.length === index + 1) {
+          if (options.length === index + 1) {
             return (
               <li
                 ref={lastElementRef}
@@ -96,10 +112,11 @@ const ItemTempl: FC<IItemArray> = ({ options, handleGetFavorites, setCurrentPage
               />
             );
           }
-
-          
         })}
       </ul>
+      <div className={s.error}>{options.length === 0 && "Nothing found.. 😶 Please, use the search above!"}</div>
+      <div className={s.error}>{loading && "Loading..."}</div>
+      <div className={s.error}>{error && "There's nothing else.. 🙁"}</div>
     </>
   );
 };

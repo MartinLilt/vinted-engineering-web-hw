@@ -30,6 +30,8 @@
 .modal {
   position: fixed;
   overflow-y: auto;
+  display: flex;
+  align-items: center;
   top: 0;
   left: 0;
   width: 100%;
@@ -42,13 +44,31 @@
 .modal span {
   display: flex;
   cursor: auto;
+  height: min-content;
   flex-direction: column;
-  max-width: 60%;
-  margin: 6rem auto;
+  margin: 1rem;
   border-radius: 0.4rem;
   padding: 1rem;
   background-color: #fff;
   box-shadow: inset 1px 1px 0 0 hsla(0,0%,100%,0.5),0 3px 8px 0 #555a64;
+}
+
+@media screen and (min-width: 768px) {
+
+  .modal {
+    justify-content: center;
+  }
+
+  .modal span {
+    max-width: 768px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+
+  .modal span {
+    max-width: 1024px;
+  }
 }
 
 .modal span img {
@@ -85,4 +105,8 @@
 .button:hover {
   color: #fff;
   background-color: rgb(0, 119, 130);
+}
+
+.error {
+  text-align: center;
 }

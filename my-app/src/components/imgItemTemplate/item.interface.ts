@@ -1,9 +1,8 @@
 import { IArrayOptions } from "../../interfaces/app.interface";
 
 export interface IItemArray {
-  options: IArrayOptions[];
-  handleGetFavorites: (tags: string) => void;
-  setCurrentPage: (stateUpdater: (state: number) => number) => void;
+  searchQuery: string;
+  setFavorites: React.Dispatch<React.SetStateAction<IArrayOptions[]>>
 }
 
 export interface IArrayQuery {
